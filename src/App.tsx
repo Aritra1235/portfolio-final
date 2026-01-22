@@ -201,19 +201,16 @@ function App() {
                 {/* Metrics from your analytics */}
                 <div className="grid grid-cols-3 gap-3 mb-6">
                   <div className="metric-card rounded-lg p-3 text-center">
-                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">286</div>
+                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">2.3K</div>
                     <div className="text-xs lg:text-sm text-ash-600 dark:text-ash-400">Active Users</div>
-                    <div className="text-xs text-green-600">↑ 652.6%</div>
                   </div>
                   <div className="metric-card rounded-lg p-3 text-center">
-                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">3.3K</div>
+                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">32K</div>
                     <div className="text-xs lg:text-sm text-ash-600 dark:text-ash-400">Events</div>
-                    <div className="text-xs text-green-600">↑ 1,378.2%</div>
                   </div>
                   <div className="metric-card rounded-lg p-3 text-center">
-                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">282</div>
+                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">2.3K</div>
                     <div className="text-xs lg:text-sm text-ash-600 dark:text-ash-400">New Users</div>
-                    <div className="text-xs text-green-600">↑ 642.1%</div>
                   </div>
                 </div>
                 
@@ -237,30 +234,35 @@ function App() {
               </div>
             </div>
 
-            {/* Second row - ML Project (full width) */}
+            {/* Second row - Scream Project (full width) */}
             <div className="project-card rounded-2xl p-6 lg:p-8">
               <h3 className="text-xl lg:text-2xl font-bold text-ash-900 dark:text-ash-100 mb-4">
-                Logging Platform
+                Scream - Full-Stack Social Media Platform
               </h3>
               <p className="text-ash-600 dark:text-ash-400 mb-6 leading-relaxed max-w-4xl">
-                Currently developing a comprehensive logging solution with multiple 
-                interconnected components. This complex project focuses on log aggregation, 
-                processing, and analysis across distributed systems. Can't give away more 
-                details, but it's quite involved.
+                A complete Twitter-like social media platform with robust backend API and modern frontend. 
+                Features include user authentication, profile management, post creation with image uploads, 
+                real-time feeds, likes and interactions, email notifications, and secure API key management. 
+                Built with modular architecture for scalability and maintainability.
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Fastify</span>
                 <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Next.js</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">better-auth</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Docker</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Kubernetes</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">OpenTelemetry</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Postgres</span>
+                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">TypeScript</span>
+                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Node.js</span>
+                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Drizzle ORM</span>
+                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">PostgreSQL</span>
+                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">AWS S3</span>
+                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Tailwind CSS</span>
               </div>
               <div className="flex items-center">
-                <span className="text-ash-600 dark:text-ash-400 font-medium">
-                  In Development
-                </span>
+                <a 
+                  href="https://scream.aritra.ovh" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-ash-900 dark:text-ash-100 font-medium hover:text-ash-600 dark:hover:text-ash-400 transition-colors"
+                >
+                  View Project →
+                </a>
               </div>
             </div>
           </div>
