@@ -220,11 +220,11 @@ function ProjectsPage() {
   )
 }
 
-function AdUnit({ side }: { side: 'left' | 'right' }) {
+function ArticleRail({ side }: { side: 'left' | 'right' }) {
   return (
     <aside
-      className={`ad-rail ad-rail--${side}`}
-      aria-label={`${side} advertisement space`}
+      className={`article-rail article-rail--${side}`}
+      aria-hidden="true"
     >
       <div>
         {/*
@@ -356,7 +356,7 @@ function ProjectPage({ project }: { project: Project }) {
       {project.metrics && <section className="metric-row shell">{project.metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span><small>{metric.detail}</small></div>)}</section>}
       <ProjectGallery project={project} />
       <div className="article-layout">
-        <AdUnit side="left" />
+        <ArticleRail side="left" />
         <article className="case-article">
           <nav className="article-toc" aria-label="Article contents"><span>In this case study</span>{project.sections.map((section, index) => <a href={`#section-${index + 1}`} key={section.title}>{String(index + 1).padStart(2, '0')} {section.title}</a>)}</nav>
           {project.sections.map((section, index) => (
@@ -370,7 +370,7 @@ function ProjectPage({ project }: { project: Project }) {
           ))}
           <div className="stack-block"><span>Built with</span><div className="tag-list">{project.stack.map((item) => <span key={item}>{item}</span>)}</div></div>
         </article>
-        <AdUnit side="right" />
+        <ArticleRail side="right" />
       </div>
       <section className="next-project shell"><span>Next case study</span><Link to={`/projects/${nextProject.slug}`}><h2>{nextProject.title}</h2><i><Arrow /></i></Link></section>
     </main>
