@@ -1,486 +1,389 @@
+import { useEffect, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react'
+import { projects, skillGroups, type Project } from './content'
 
+type FormStatus = '' | 'success' | 'error'
+type Route =
+  | { kind: 'home' }
+  | { kind: 'projects' }
+  | { kind: 'project'; project: Project }
+  | { kind: 'about' }
+  | { kind: 'contact' }
+  | { kind: 'privacy' }
+  | { kind: 'not-found' }
 
-import { useState } from 'react'
+const normalizePath = (pathname: string) => pathname.replace(/\/+$/, '') || '/'
 
-function App() {
-  const [formStatus, setFormStatus] = useState('')
+const getRoute = (pathname: string): Route => {
+  const path = normalizePath(pathname)
+  if (path === '/') return { kind: 'home' }
+  if (path === '/projects') return { kind: 'projects' }
+  if (path === '/about') return { kind: 'about' }
+  if (path === '/contact') return { kind: 'contact' }
+  if (path === '/privacy') return { kind: 'privacy' }
+  if (path.startsWith('/projects/')) {
+    const project = projects.find((item) => item.slug === path.slice('/projects/'.length))
+    if (project) return { kind: 'project', project }
+  }
+  return { kind: 'not-found' }
+}
+
+function Link({ to, children, className = '' }: { to: string; children: ReactNode; className?: string }) {
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    window.history.pushState({}, '', to)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    window.scrollTo({ top: 0 })
+  }
+  return <a href={to} onClick={handleClick} className={className}>{children}</a>
+}
+
+function Arrow() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4 12 12 4M6 4h6v6" />
+    </svg>
+  )
+}
+
+function Mark() {
+  return (
+    <span className="brand-mark" aria-hidden="true">
+      <span />
+      <span />
+    </span>
+  )
+}
+
+function Eyebrow({ children }: { children: ReactNode }) {
+  return <p className="eyebrow">{children}</p>
+}
+
+function SiteNav() {
+  return (
+    <header className="site-header">
+      <div className="shell">
+        <nav className="site-nav" aria-label="Primary navigation">
+          <Link to="/" className="site-nav__brand"><Mark /><span>Aritra Bhattacharya</span></Link>
+          <div className="site-nav__links">
+            <Link to="/projects">Work</Link>
+            <Link to="/about">About</Link>
+            <a href="/resume.pdf" target="_blank">Résumé</a>
+            <Link to="/contact" className="nav-cta">Let’s talk <Arrow /></Link>
+          </div>
+        </nav>
+      </div>
+    </header>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="site-footer">
+      <div className="shell footer-grid">
+        <div className="footer-lede">
+          <Mark />
+          <p>Independent software developer building useful products from interface to infrastructure.</p>
+        </div>
+        <div className="footer-column">
+          <span>Navigate</span>
+          <Link to="/projects">Selected work</Link>
+          <Link to="/about">About</Link>
+          <Link to="/contact">Contact</Link>
+        </div>
+        <div className="footer-column">
+          <span>Elsewhere</span>
+          <a href="https://github.com/Aritra1235" target="_blank" rel="noreferrer">GitHub ↗</a>
+          <a href="mail@aritra.ovh">Email ↗</a>
+          <Link to="/privacy">Privacy</Link>
+        </div>
+        <p className="footer-meta">© {new Date().getFullYear()} Aritra Bhattacharya · India</p>
+      </div>
+    </footer>
+  )
+}
+
+function ProjectVisual({ project, compact = false }: { project: Project; compact?: boolean }) {
+  return (
+    <div className={`project-visual project-visual--${project.slug} ${compact ? 'project-visual--compact' : ''}`} aria-hidden="true">
+      <div className="visual-topbar"><i /><i /><i /><span>{project.type}</span></div>
+      {project.slug === 'music-platform' && (
+        <div className="real-shot real-shot--music">
+          <img className="real-shot__desktop" src="/images/music-platform-web-01.webp" alt="" />
+          <div className="real-shot__phone real-shot__phone--one"><img src="/images/music-platform-android-01.webp" alt="" /></div>
+          <div className="real-shot__phone real-shot__phone--two"><img src="/images/music-platform-android-02.webp" alt="" /></div>
+        </div>
+      )}
+      {project.slug === 'scream' && (
+        <div className="real-shot real-shot--scream">
+          <img className="real-shot__desktop" src="/images/scream-01.webp" alt="" />
+          <img className="real-shot__detail" src="/images/scream-04.webp" alt="" />
+        </div>
+      )}
+      {project.slug === 'apple-music-art-downloader' && (
+        <div className="real-shot real-shot--apple">
+          <img className="real-shot__desktop" src="/images/apple-music-covers-01.webp" alt="" />
+          <img className="real-shot__detail" src="/images/apple-music-covers-02.webp" alt="" />
+        </div>
+      )}
+      {project.slug === 'ocr-text-extraction-tool' && (
+        <div className="real-shot real-shot--ocr">
+          <img className="real-shot__desktop" src="/images/ocr-01.webp" alt="" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ProjectCard({ project, featured = false }: { project: Project; featured?: boolean }) {
+  return (
+    <article className={`project-card ${featured ? 'project-card--featured' : ''}`}>
+      <Link to={`/projects/${project.slug}`} className="project-card__visual-link" aria-label={`Read ${project.title} case study`}>
+        <ProjectVisual project={project} compact={!featured} />
+      </Link>
+      <div className="project-card__copy">
+        <div className="project-card__meta"><span>{project.number} / {project.type}</span><span>{project.status}</span></div>
+        <h3><Link to={`/projects/${project.slug}`}>{project.title}</Link></h3>
+        <p>{project.summary}</p>
+        <div className="project-card__bottom">
+          <div className="tag-list">{project.stack.slice(0, featured ? 6 : 4).map((item) => <span key={item}>{item}</span>)}</div>
+          <Link to={`/projects/${project.slug}`} className="circle-link" aria-label={`Read ${project.title} case study`}><Arrow /></Link>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function HomePage() {
+  return (
+    <main>
+      <section className="hero shell">
+        <div className="hero__grid">
+          <div>
+            <h1>I design and build software for web, mobile, and everything behind them.</h1>
+            <p className="hero__lede">I’m Aritra, a computer science student and product-minded developer. I design interfaces, build the systems behind them, and document the decisions that make the whole thing work.</p>
+          </div>
+          <div className="hero__side">
+            <div className="button-row">
+              <Link to="/projects" className="button button--solid">Explore my work <Arrow /></Link>
+              <Link to="/contact" className="button button--text">Start a conversation</Link>
+            </div>
+          </div>
+        </div>
+        <div className="hero__footer"><span className="scroll-cue">Scroll to explore ↓</span></div>
+      </section>
+
+      <section className="work-section shell">
+        <div className="section-heading"><div><Eyebrow>01 — Selected work</Eyebrow><h2>Products, not just projects.</h2></div><p>Four case studies across streaming, social, media utilities, and OCR—each built around a real problem and the systems required to solve it.</p></div>
+        <div className="project-grid">
+          {projects.map((project, index) => <ProjectCard project={project} featured={index === 0} key={project.slug} />)}
+        </div>
+        <div className="center-action"><Link to="/projects" className="button button--outline">View the complete index <Arrow /></Link></div>
+      </section>
+
+      <section className="principles-section">
+        <div className="shell principles-grid">
+          <div><Eyebrow>02 — Approach</Eyebrow><h2>Useful software should feel considered.</h2></div>
+          <div className="principles-list">
+            <div><span>01</span><h3>Start with the job</h3><p>A clear user problem makes technical decisions easier to judge.</p></div>
+            <div><span>02</span><h3>Own the whole path</h3><p>Interface, service, data, and operations are one experience.</p></div>
+            <div><span>03</span><h3>Show the trade-offs</h3><p>Good case studies explain why, including what comes next.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="toolkit shell">
+        <div className="section-heading"><div><Eyebrow>03 — Toolkit</Eyebrow><h2>Comfortable across the stack.</h2></div><p>TypeScript-first, product-focused, and happy moving between a polished client, a service boundary, and the infrastructure underneath it.</p></div>
+        <div className="skill-grid">{skillGroups.map((group) => <div key={group.title}><h3>{group.title}</h3>{group.skills.map((skill) => <span key={skill}>{skill}</span>)}</div>)}</div>
+      </section>
+
+      <ContactBand />
+    </main>
+  )
+}
+
+function ContactBand() {
+  return (
+    <section className="contact-band">
+      <div className="shell contact-band__inner"><div><Eyebrow>Have something in mind?</Eyebrow><h2>Let’s build the useful version.</h2></div><Link to="/contact" className="button button--light">Tell me about it <Arrow /></Link></div>
+    </section>
+  )
+}
+
+function ProjectsPage() {
+  return (
+    <main>
+      <section className="page-hero shell"><Eyebrow>Work / 2025—26</Eyebrow><h1>Selected projects and the decisions behind them.</h1><p>Not a wall of screenshots. Each entry covers the problem, the product loop, the architecture, and the next honest milestone.</p></section>
+      <section className="project-index shell">{projects.map((project) => <ProjectCard key={project.slug} project={project} />)}</section>
+      <ContactBand />
+    </main>
+  )
+}
+
+function AdUnit({ side }: { side: 'left' | 'right' }) {
+  return <aside className={`ad-rail ad-rail--${side}`} aria-label={`${side} advertisement space`}><div><span>Advertisement</span><b>Reserved<br />ad space</b><small>160 × 600</small></div></aside>
+}
+
+function GalleryImage({ image }: { image: NonNullable<Project['gallery']>[number] }) {
+  return (
+    <figure className={`${image.portrait ? 'is-portrait' : ''} ${image.wide ? 'is-wide' : ''}`}>
+      <img src={image.src} alt={image.alt} loading="lazy" />
+      <figcaption>{image.alt}</figcaption>
+    </figure>
+  )
+}
+
+function ProjectGallery({ project }: { project: Project }) {
+  if (!project.gallery) return null
+
+  const gallery = project.gallery
+  return (
+    <section className={`project-gallery shell project-gallery--${project.slug}`}>
+      <div className="project-gallery__heading"><Eyebrow>Inside the product</Eyebrow><h2>Selected interface views.</h2></div>
+      {project.slug === 'music-platform' ? (
+        <div className="project-gallery__masonry">
+          <div className="gallery-stack">
+            <GalleryImage image={gallery[0]} />
+            <div className="gallery-pair">
+              <GalleryImage image={gallery[2]} />
+              <GalleryImage image={gallery[3]} />
+            </div>
+          </div>
+          <div className="gallery-stack">
+            <GalleryImage image={gallery[1]} />
+            <GalleryImage image={gallery[4]} />
+            <div className="gallery-pair">
+              <GalleryImage image={gallery[5]} />
+              <GalleryImage image={gallery[6]} />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="project-gallery__grid">
+          {gallery.map((image) => <GalleryImage image={image} key={image.src} />)}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ProjectPage({ project }: { project: Project }) {
+  const nextProject = projects[(projects.findIndex((item) => item.slug === project.slug) + 1) % projects.length]
+  return (
+    <main>
+      <section className="case-hero shell">
+        <Link to="/projects" className="back-link">← All projects</Link>
+        <div className="case-hero__meta"><span>{project.number}</span><span>{project.type}</span><span>{project.status}</span></div>
+        <h1>{project.title}</h1>
+        <p>{project.description}</p>
+        <div className="case-actions">
+          {project.externalUrl && <a className="button button--solid" href={project.externalUrl} target="_blank" rel="noreferrer">{project.externalLabel} <Arrow /></a>}
+          {project.sourceUrl && <a className="button button--outline" href={project.sourceUrl} target="_blank" rel="noreferrer">View source <Arrow /></a>}
+        </div>
+      </section>
+      <div className="case-visual shell"><ProjectVisual project={project} /></div>
+      <section className="case-facts shell">
+        <div><span>Audience</span><strong>{project.audience}</strong></div>
+        <div><span>Timeline</span><strong>{project.timeline}</strong></div>
+        <div><span>Role</span><strong>Design & full-stack development</strong></div>
+      </section>
+      {project.metrics && <section className="metric-row shell">{project.metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span><small>{metric.detail}</small></div>)}</section>}
+      <ProjectGallery project={project} />
+      <div className="article-layout">
+        <AdUnit side="left" />
+        <article className="case-article">
+          <nav className="article-toc" aria-label="Article contents"><span>In this case study</span>{project.sections.map((section, index) => <a href={`#section-${index + 1}`} key={section.title}>{String(index + 1).padStart(2, '0')} {section.title}</a>)}</nav>
+          {project.sections.map((section, index) => (
+            <section id={`section-${index + 1}`} className="article-section" key={section.title}>
+              <span className="article-number">{String(index + 1).padStart(2, '0')}</span>
+              <h2>{section.title}</h2>
+              {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+              {section.bullets && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
+              {section.note && <aside className="article-note"><span>Note</span><p>{section.note}</p></aside>}
+            </section>
+          ))}
+          <div className="stack-block"><span>Built with</span><div className="tag-list">{project.stack.map((item) => <span key={item}>{item}</span>)}</div></div>
+        </article>
+        <AdUnit side="right" />
+      </div>
+      <section className="next-project shell"><span>Next case study</span><Link to={`/projects/${nextProject.slug}`}><h2>{nextProject.title}</h2><i><Arrow /></i></Link></section>
+    </main>
+  )
+}
+
+function AboutPage() {
+  return (
+    <main>
+      <section className="page-hero page-hero--about shell"><Eyebrow>About</Eyebrow><h1>I build things when the problem is worth understanding.</h1></section>
+      <section className="about-grid shell">
+        <div className="about-statement"><p>I’m Aritra Bhattacharya, a computer science student at VIT-AP University and a full-stack developer based in India.</p><p>My projects usually start with friction I can feel: </p></div>
+        <div className="about-detail"><Eyebrow>How I work</Eyebrow><p>I like owning the entire path—from the sentence on a button to the trace that explains why the request behind it failed. That means caring equally about typography, state transitions, schemas, background jobs, and deployment.</p><p>I’m most useful on teams that value direct communication, thoughtful iteration, and developers who can move between product and infrastructure without losing sight of the person using the software.</p><div className="fact-list"><span><b>Based</b> India</span><span><b>Studying</b> Computer Science</span><span><b>Off-screen</b> Football & Music</span><span><b>Favourite tool</b> TypeScript</span></div></div>
+      </section>
+      <section className="toolkit shell toolkit--about"><div className="section-heading"><div><Eyebrow>Capabilities</Eyebrow><h2>The working toolkit.</h2></div></div><div className="skill-grid">{skillGroups.map((group) => <div key={group.title}><h3>{group.title}</h3>{group.skills.map((skill) => <span key={skill}>{skill}</span>)}</div>)}</div></section>
+      <ContactBand />
+    </main>
+  )
+}
+
+function ContactPage() {
+  const [formStatus, setFormStatus] = useState<FormStatus>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     setIsSubmitting(true)
-    
-    const form = e.target as HTMLFormElement
-    const formData = new FormData(form)
-    
+    const form = event.currentTarget
     try {
-      const response = await fetch('https://formbold.com/s/oeqMB', {
-        method: 'POST',
-        body: formData
-      })
-      
-      if (response.ok) {
-        setFormStatus('success')
-        form.reset()
-      } else {
-        setFormStatus('error')
-      }
-    } catch (error) {
+      const response = await fetch('https://formbold.com/s/oeqMB', { method: 'POST', body: new FormData(form) })
+      if (!response.ok) throw new Error('Request failed')
+      form.reset()
+      setFormStatus('success')
+    } catch {
       setFormStatus('error')
     } finally {
       setIsSubmitting(false)
-      // Reset status after 5 seconds
-      setTimeout(() => setFormStatus(''), 5000)
     }
   }
-
   return (
-    <div className="min-h-screen bg-ash-50 dark:bg-ash-950">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 pt-4">
-        <div className="flex justify-center px-4">
-          <div className="nav-blur border rounded-full shadow-lg max-w-4xl w-full">
-            <div className="flex items-center justify-center h-14 px-6 relative">
-              {/* Navigation Links - Left */}
-              <div className="hidden md:flex space-x-6 absolute left-6">
-                <a href="#about" className="text-ash-600 dark:text-ash-400 hover:text-ash-900 dark:hover:text-ash-100 transition-colors duration-200 font-medium text-sm">
-                  About
-                </a>
-                <a href="#projects" className="text-ash-600 dark:text-ash-400 hover:text-ash-900 dark:hover:text-ash-100 transition-colors duration-200 font-medium text-sm">
-                  Projects
-                </a>
-              </div>
-              
-              {/* Centered Name */}
-              <div className="text-lg font-bold text-ash-900 dark:text-ash-100">
-                Aritra Bhattacharya
-              </div>
-              
-              {/* Navigation Links - Right */}
-              <div className="hidden md:flex space-x-6 absolute right-6">
-                <a href="#skills" className="text-ash-600 dark:text-ash-400 hover:text-ash-900 dark:hover:text-ash-100 transition-colors duration-200 font-medium text-sm">
-                  Skills
-                </a>
-                <a href="#contact" className="text-ash-600 dark:text-ash-400 hover:text-ash-900 dark:hover:text-ash-100 transition-colors duration-200 font-medium text-sm">
-                  Contact
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <main className="contact-page shell">
+      <div className="contact-copy"><Eyebrow>Contact</Eyebrow><h1>Tell me what you're trying to build.</h1><p>A useful first message includes the problem, the people it is for, and where the project is right now. Rough ideas are welcome.</p><a href="mailto:mail@aritra.ovh">mail@aritra.ovh <Arrow /></a></div>
+      <form className="contact-form" onSubmit={handleSubmit}>
+        <label><span>Your name</span><input name="name" autoComplete="name" required placeholder="Jane Smith" /></label>
+        <label><span>Email address</span><input name="email" type="email" autoComplete="email" required placeholder="jane@company.com" /></label>
+        <label><span>What are you working on?</span><textarea name="message" required rows={7} placeholder="A short version is perfect…" /></label>
+        <button className="button button--solid" disabled={isSubmitting}>{isSubmitting ? 'Sending…' : 'Send message'} <Arrow /></button>
+        {formStatus === 'success' && <p className="form-message form-message--success">Message sent. I’ll get back to you soon.</p>}
+        {formStatus === 'error' && <p className="form-message">Something went wrong. Email me directly and I’ll pick it up there.</p>}
+      </form>
+    </main>
+  )
+}
 
-      {/* Hero Section */}
-      <section className="pt-28 pb-16 sm:pt-36 sm:pb-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-ash-900 dark:text-ash-100 leading-tight">
-              Full-Stack
-              <span className="block text-ash-600 dark:text-ash-400 mt-2">Developer</span>
-            </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-ash-600 dark:text-ash-400 mt-6 mb-8 leading-relaxed max-w-3xl mx-auto">
-              Computer Science student at VIT-AP University, building practical solutions 
-              that people actually use and love.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a href="#projects" className="inline-flex items-center justify-center bg-ash-900 dark:bg-ash-100 text-ash-50 dark:text-ash-900 px-8 py-3 rounded-lg font-medium hover:bg-ash-800 dark:hover:bg-ash-200 transition-colors w-full sm:w-auto">
-                View Projects
-              </a>
-              <a href="#contact" className="inline-flex items-center justify-center border border-ash-300 dark:border-ash-700 text-ash-900 dark:text-ash-100 px-8 py-3 rounded-lg font-medium hover:bg-ash-100 dark:hover:bg-ash-800 transition-colors w-full sm:w-auto">
-                Get In Touch
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+function PrivacyPage() {
+  return <main className="legal-page shell"><Eyebrow>Privacy</Eyebrow><h1>A short, human privacy note.</h1><div><h2>Analytics</h2><p>This site uses Vercel Analytics to understand aggregate visits and page performance. It is used to improve the portfolio, not to build advertising profiles.</p><h2>Contact</h2><p>If you submit the contact form, the information you provide is sent through Formbold so I can reply. Do not include sensitive information.</p><h2>Advertising</h2><p>Article pages reserve layout space for future advertisements. The placeholders do not currently load an ad network or set advertising cookies.</p></div></main>
+}
 
-      {/* About Section */}
-      <section id="about" className="py-16 sm:py-20 lg:py-24 bg-white dark:bg-ash-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-ash-900 dark:text-ash-100 mb-12 lg:mb-16">
-            About Me
-          </h2>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              <div className="space-y-6">
-                <p className="text-base lg:text-lg text-ash-600 dark:text-ash-400 leading-relaxed">
-                  Hello there, I am <b>Aritra Bhattacharya</b>. I'm a 19 year old <b>Computer Science</b> student. 
-                  I'm really passionate about creating software that solves real problems. 
-                  My approach is practical - I build things when I need them. That's it. 
-                  Which has helped me to reach out to others that have had similar problems as me.
-                </p>
-                <p className="text-base lg:text-lg text-ash-600 dark:text-ash-400 leading-relaxed">
-                  Whether working as part of a team or leading projects, I bring strong 
-                  leadership qualities and believe in open, constructive communication while 
-                  maintaining professionalism.
-                </p>
-                <p className="text-base lg:text-lg text-ash-600 dark:text-ash-400 leading-relaxed">
-                  Beyond coding, I'm a football fan.
-        </p>
-      </div>
-              <div className="bg-ash-50 dark:bg-ash-800 rounded-2xl p-6 lg:p-8">
-                <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100 mb-6">
-                  Random Facts
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-ash-600 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="text-ash-600 dark:text-ash-400">Manchester United Fan For Life</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-ash-600 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="text-ash-600 dark:text-ash-400">Love Pop Music</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-ash-600 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="text-ash-600 dark:text-ash-400">Always Ready To For A Challenge and Learn New Stuff</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-ash-600 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="text-ash-600 dark:text-ash-400">Love TypeScript</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-ash-600 rounded-full mr-3 flex-shrink-0"></div>
-                    <span className="text-ash-600 dark:text-ash-400">Learning Deep Learning</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+function NotFoundPage() {
+  return <main className="not-found shell"><span>404</span><h1>This page wandered off.</h1><p>The work is still here. The route is not.</p><Link to="/" className="button button--solid">Back home <Arrow /></Link></main>
+}
 
-      {/* Projects Section */}
-      <section id="projects" className="py-16 sm:py-20 lg:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-ash-900 dark:text-ash-100 mb-12 lg:mb-16">
-            Featured Projects
-          </h2>
-          <div className="space-y-8">
-            {/* First row - OCR and Apple Music projects */}
-            <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-              {/* OCR Project */}
-              <div className="project-card rounded-2xl p-6 lg:p-8">
-                <h3 className="text-xl lg:text-2xl font-bold text-ash-900 dark:text-ash-100 mb-4">
-                  OCR Text Extraction Tool
-                </h3>
-                <p className="text-ash-600 dark:text-ash-400 mb-6 leading-relaxed">
-                  A practical solution for extracting text from screenshots. Built to streamline 
-                  my own workflow, now planning to expand it into a full-fledged service.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Next.js</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Bun.js</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">WebSockets</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Postgres</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">OpenTelemetry</span>
-                </div>
-                <div className="flex items-center">
-                  <a 
-                    href="https://ocr.aritra.ovh" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-ash-900 dark:text-ash-100 font-medium hover:text-ash-600 dark:hover:text-ash-400 transition-colors"
-                  >
-                    View Project →
-                  </a>
-                </div>
-              </div>
-
-              {/* Apple Music Project */}
-              <div className="project-card rounded-2xl p-6 lg:p-8">
-                <h3 className="text-xl lg:text-2xl font-bold text-ash-900 dark:text-ash-100 mb-4">
-                  Apple Music Album Art Downloader
-                </h3>
-                <p className="text-ash-600 dark:text-ash-400 mb-4 leading-relaxed">
-                  High-quality album artwork downloader for music enthusiasts. Features real-time 
-                  status updates and WebSocket connections. What started as a personal project 
-                  now serves hundreds of users monthly, around the world. Form USA to Germany to Brazil.
-                </p>
-                
-                {/* Metrics from your analytics */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  <div className="metric-card rounded-lg p-3 text-center">
-                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">2.3K</div>
-                    <div className="text-xs lg:text-sm text-ash-600 dark:text-ash-400">Active Users</div>
-                  </div>
-                  <div className="metric-card rounded-lg p-3 text-center">
-                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">32K</div>
-                    <div className="text-xs lg:text-sm text-ash-600 dark:text-ash-400">Events</div>
-                  </div>
-                  <div className="metric-card rounded-lg p-3 text-center">
-                    <div className="text-lg lg:text-2xl font-bold text-ash-900 dark:text-ash-100">2.3K</div>
-                    <div className="text-xs lg:text-sm text-ash-600 dark:text-ash-400">New Users</div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Next.js</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Express</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">WebSockets</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Postgres</span>
-                  <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">OpenTelemetry</span>
-                </div>
-                <div className="flex items-center">
-                  <a 
-                    href="https://applemusic.aritra.ovh" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-ash-900 dark:text-ash-100 font-medium hover:text-ash-600 dark:hover:text-ash-400 transition-colors"
-                  >
-                    View Project →
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Second row - Scream Project (full width) */}
-            <div className="project-card rounded-2xl p-6 lg:p-8">
-              <h3 className="text-xl lg:text-2xl font-bold text-ash-900 dark:text-ash-100 mb-4">
-                Scream - Full-Stack Social Media Platform
-              </h3>
-              <p className="text-ash-600 dark:text-ash-400 mb-6 leading-relaxed max-w-4xl">
-                A complete Twitter-like social media platform with robust backend API and modern frontend. 
-                Features include user authentication, profile management, post creation with image uploads, 
-                real-time feeds, likes and interactions, email notifications, and secure API key management. 
-                Built with modular architecture for scalability and maintainability.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Next.js</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">TypeScript</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Node.js</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Drizzle ORM</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">PostgreSQL</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">AWS S3</span>
-                <span className="skill-tag px-3 py-1 rounded-full text-xs font-medium">Tailwind CSS</span>
-              </div>
-              <div className="flex items-center">
-                <a 
-                  href="https://scream.aritra.ovh" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-ash-900 dark:text-ash-100 font-medium hover:text-ash-600 dark:hover:text-ash-400 transition-colors"
-                >
-                  View Project →
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section id="skills" className="py-16 sm:py-20 lg:py-24 bg-white dark:bg-ash-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center text-ash-900 dark:text-ash-100 mb-12 lg:mb-16">
-            Technical Skills
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100">Languages</h3>
-              <div className="flex flex-wrap gap-3">
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">TypeScript</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">JavaScript</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Java</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Python</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100">Frontend</h3>
-              <div className="flex flex-wrap gap-3">
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">React</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Next.js</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Expo</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Tailwind CSS</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100">Backend</h3>
-              <div className="flex flex-wrap gap-3">
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Node.js</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Bun.js</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Fastify</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Express</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Flask</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100">Databases</h3>
-              <div className="flex flex-wrap gap-3">
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">MongoDB</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">PostgreSQL</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">MySQL</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Redis</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100">Currently Learning</h3>
-              <div className="flex flex-wrap gap-3">
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Deep Learning</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-ash-900 dark:text-ash-100">Tools & Cloud</h3>
-              <div className="flex flex-wrap gap-3">
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Git</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Docker</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Kubernetes</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">OpenTelemetry</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">AWS</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Vercel</span>
-                <span className="skill-tag px-4 py-2 rounded-full text-sm font-medium">Oracle OCI</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-16 sm:py-20 lg:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ash-900 dark:text-ash-100 mb-6 lg:mb-8">
-              Get In Touch
-            </h2>
-            <p className="text-lg lg:text-xl text-ash-600 dark:text-ash-400 mb-10 lg:mb-12 leading-relaxed">
-              Interested in collaborating or discussing opportunities? I'm always open to 
-              connecting with fellow developers and potential team members.
-            </p>
-            
-            {/* Contact Form */}
-            <div className="max-w-2xl mx-auto mb-12">
-              <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div>
-                    <input 
-                      type="text" 
-                      name="name" 
-                      placeholder="Your Name" 
-                      required
-                      className="w-full px-4 py-3 bg-white dark:bg-ash-800 border border-ash-300 dark:border-ash-700 rounded-lg text-ash-900 dark:text-ash-100 placeholder-ash-500 dark:placeholder-ash-400 focus:outline-none focus:ring-2 focus:ring-ash-600 dark:focus:ring-ash-400 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <input 
-                      type="email" 
-                      name="email" 
-                      placeholder="Your Email" 
-                      required
-                      className="w-full px-4 py-3 bg-white dark:bg-ash-800 border border-ash-300 dark:border-ash-700 rounded-lg text-ash-900 dark:text-ash-100 placeholder-ash-500 dark:placeholder-ash-400 focus:outline-none focus:ring-2 focus:ring-ash-600 dark:focus:ring-ash-400 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <input 
-                    type="text" 
-                    name="subject" 
-                    placeholder="Subject" 
-                    required
-                    className="w-full px-4 py-3 bg-white dark:bg-ash-800 border border-ash-300 dark:border-ash-700 rounded-lg text-ash-900 dark:text-ash-100 placeholder-ash-500 dark:placeholder-ash-400 focus:outline-none focus:ring-2 focus:ring-ash-600 dark:focus:ring-ash-400 focus:border-transparent transition-colors"
-                  />
-                </div>
-                <div>
-                  <textarea 
-                    name="message" 
-                    rows={6}
-                    placeholder="Your message..."
-                    required
-                    className="w-full px-4 py-3 bg-white dark:bg-ash-800 border border-ash-300 dark:border-ash-700 rounded-lg text-ash-900 dark:text-ash-100 placeholder-ash-500 dark:placeholder-ash-400 focus:outline-none focus:ring-2 focus:ring-ash-600 dark:focus:ring-ash-400 focus:border-transparent transition-colors resize-vertical"
-                  ></textarea>
-                </div>
-                <div className="text-center">
-                  <button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`inline-flex items-center justify-center px-8 py-3 rounded-lg font-medium transition-all w-full sm:w-auto ${
-                      isSubmitting 
-                        ? 'bg-ash-600 text-ash-300 cursor-not-allowed' 
-                        : 'bg-ash-900 dark:bg-ash-100 text-ash-50 dark:text-ash-900 hover:bg-ash-800 dark:hover:bg-ash-200'
-                    }`}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Sending...
-                      </>
-                    ) : (
-                      'Send Message'
-                    )}
-                  </button>
-                </div>
-                
-                {/* Success/Error Messages */}
-                {formStatus === 'success' && (
-                  <div className="text-center animate-fadeIn">
-                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Message sent successfully!
-                    </div>
-                  </div>
-                )}
-                
-                {formStatus === 'error' && (
-                  <div className="text-center animate-fadeIn">
-                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
-                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
-                      Something went wrong. Please try again.
-                    </div>
-                  </div>
-                )}
-              </form>
-            </div>
-
-            {/* Social Links */}
-            <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 justify-center items-center max-w-2xl mx-auto">
-              <a 
-                href="mailto:b.aritra@icloud.com" 
-                className="inline-flex items-center justify-center border border-ash-300 dark:border-ash-700 text-ash-900 dark:text-ash-100 px-6 py-3 rounded-lg font-medium hover:bg-ash-100 dark:hover:bg-ash-800 transition-colors w-full sm:w-auto"
-              >
-                Direct Email
-              </a>
-              <a 
-                href="https://github.com/Aritra1235/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-ash-300 dark:border-ash-700 text-ash-900 dark:text-ash-100 px-6 py-3 rounded-lg font-medium hover:bg-ash-100 dark:hover:bg-ash-800 transition-colors w-full sm:w-auto"
-              >
-                GitHub
-              </a>
-              <a 
-                href="https://www.linkedin.com/in/aritra-bhattacharya-524157265/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-ash-300 dark:border-ash-700 text-ash-900 dark:text-ash-100 px-6 py-3 rounded-lg font-medium hover:bg-ash-100 dark:hover:bg-ash-800 transition-colors w-full sm:w-auto"
-              >
-                LinkedIn
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-white dark:bg-ash-900 border-t border-ash-200 dark:border-ash-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-ash-600 dark:text-ash-400">
-              &copy; 2025 Aritra Bhattacharya.
-            </p>
-          </div>
-        </div>
-      </footer>
+function App() {
+  const [route, setRoute] = useState<Route>(() => getRoute(window.location.pathname))
+  useEffect(() => {
+    const handlePopState = () => setRoute(getRoute(window.location.pathname))
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+  return (
+    <div className="app-shell">
+      <SiteNav />
+      {route.kind === 'home' && <HomePage />}
+      {route.kind === 'projects' && <ProjectsPage />}
+      {route.kind === 'project' && <ProjectPage project={route.project} />}
+      {route.kind === 'about' && <AboutPage />}
+      {route.kind === 'contact' && <ContactPage />}
+      {route.kind === 'privacy' && <PrivacyPage />}
+      {route.kind === 'not-found' && <NotFoundPage />}
+      <Footer />
     </div>
   )
 }
