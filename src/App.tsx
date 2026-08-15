@@ -221,49 +221,115 @@ function ProjectsPage() {
 }
 
 function AdUnit({ side }: { side: 'left' | 'right' }) {
-  return <aside className={`ad-rail ad-rail--${side}`} aria-label={`${side} advertisement space`}><div><span>Advertisement</span><b>Reserved<br />ad space</b><small>160 × 600</small></div></aside>
+  return (
+    <aside
+      className={`ad-rail ad-rail--${side}`}
+      aria-label={`${side} advertisement space`}
+    >
+      <div>
+        {/*
+        <span>Space</span>
+        <b>
+          Space
+          <br />
+          ad space
+        </b>
+        <small>160 × 600</small>
+        */}
+      </div>
+    </aside>
+  )
 }
 
-function GalleryImage({ image }: { image: NonNullable<Project['gallery']>[number] }) {
+function GalleryImage({ image, onOpen }: { image: NonNullable<Project['gallery']>[number]; onOpen: () => void }) {
   return (
-    <figure className={`${image.portrait ? 'is-portrait' : ''} ${image.wide ? 'is-wide' : ''}`}>
+    <figure
+      className={`${image.portrait ? 'is-portrait' : ''} ${image.wide ? 'is-wide' : ''}`}
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+    >
       <img src={image.src} alt={image.alt} loading="lazy" />
       <figcaption>{image.alt}</figcaption>
+      <span className="gallery-zoom">Open image <Arrow /></span>
     </figure>
   )
 }
 
 function ProjectGallery({ project }: { project: Project }) {
+  const gallery = project.gallery ?? []
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const selectedImage = selectedIndex === null ? null : gallery[selectedIndex]
+
+  useEffect(() => {
+    if (selectedIndex === null) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedIndex(null)
+      if (event.key === 'ArrowRight') setSelectedIndex((current) => current === null ? 0 : (current + 1) % gallery.length)
+      if (event.key === 'ArrowLeft') setSelectedIndex((current) => current === null ? gallery.length - 1 : (current - 1 + gallery.length) % gallery.length)
+    }
+
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [gallery.length, selectedIndex])
+
   if (!project.gallery) return null
 
-  const gallery = project.gallery
+  const renderImage = (image: NonNullable<Project['gallery']>[number], index: number) => (
+    <GalleryImage image={image} onOpen={() => setSelectedIndex(index)} key={image.src} />
+  )
+
   return (
-    <section className={`project-gallery shell project-gallery--${project.slug}`}>
-      <div className="project-gallery__heading"><Eyebrow>Inside the product</Eyebrow><h2>Selected interface views.</h2></div>
-      {project.slug === 'music-platform' ? (
-        <div className="project-gallery__masonry">
-          <div className="gallery-stack">
-            <GalleryImage image={gallery[0]} />
-            <div className="gallery-pair">
-              <GalleryImage image={gallery[2]} />
-              <GalleryImage image={gallery[3]} />
+    <>
+      <section className={`project-gallery shell project-gallery--${project.slug}`}>
+        <div className="project-gallery__heading"><Eyebrow>Inside the product</Eyebrow><h2>Selected interface views.</h2></div>
+        {project.slug === 'music-platform' ? (
+          <div className="project-gallery__masonry">
+            <div className="gallery-stack">
+              {renderImage(gallery[0], 0)}
+              <div className="gallery-pair">
+                {renderImage(gallery[2], 2)}
+                {renderImage(gallery[3], 3)}
+              </div>
+            </div>
+            <div className="gallery-stack">
+              {renderImage(gallery[1], 1)}
+              {renderImage(gallery[4], 4)}
+              <div className="gallery-pair">
+                {renderImage(gallery[5], 5)}
+                {renderImage(gallery[6], 6)}
+              </div>
             </div>
           </div>
-          <div className="gallery-stack">
-            <GalleryImage image={gallery[1]} />
-            <GalleryImage image={gallery[4]} />
-            <div className="gallery-pair">
-              <GalleryImage image={gallery[5]} />
-              <GalleryImage image={gallery[6]} />
-            </div>
+        ) : (
+          <div className="project-gallery__grid">
+            {gallery.map((image, index) => renderImage(image, index))}
           </div>
-        </div>
-      ) : (
-        <div className="project-gallery__grid">
-          {gallery.map((image) => <GalleryImage image={image} key={image.src} />)}
+        )}
+      </section>
+      {selectedImage && selectedIndex !== null && (
+        <div className="image-lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" onClick={(event) => { if (event.target === event.currentTarget) setSelectedIndex(null) }}>
+          <button className="image-lightbox__close" type="button" onClick={() => setSelectedIndex(null)} aria-label="Close image viewer">×</button>
+          <button className="image-lightbox__nav image-lightbox__nav--prev" type="button" onClick={() => setSelectedIndex((selectedIndex - 1 + gallery.length) % gallery.length)} aria-label="Previous image"><Arrow /></button>
+          <div className="image-lightbox__content">
+            <div className="image-lightbox__stage"><img src={selectedImage.src} alt={selectedImage.alt} /></div>
+            <div className="image-lightbox__footer"><span>{selectedImage.alt}</span><strong>{selectedIndex + 1} / {gallery.length}</strong></div>
+          </div>
+          <button className="image-lightbox__nav image-lightbox__nav--next" type="button" onClick={() => setSelectedIndex((selectedIndex + 1) % gallery.length)} aria-label="Next image"><Arrow /></button>
         </div>
       )}
-    </section>
+    </>
   )
 }
 

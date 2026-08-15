@@ -198,13 +198,32 @@ p { color: var(--muted); line-height: 1.7; }
 .project-gallery figure.is-wide { grid-column: span 6; }
 .project-gallery img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
 .project-gallery figure.is-portrait img { object-position: center top; }
+.project-gallery figure { cursor: zoom-in; outline: 0; }
+.project-gallery figure:focus-visible { box-shadow: 0 0 0 3px var(--accent); }
 .project-gallery figure:hover img { transform: scale(1.018); }
 .project-gallery figcaption { position: absolute; right: 12px; bottom: 12px; left: 12px; padding: 10px 12px; background: rgba(8,8,8,.76); color: #d2d2cd; font-size: .62rem; line-height: 1.4; backdrop-filter: blur(10px); }
+.gallery-zoom { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 7px 9px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; background: rgba(8,8,8,.6); color: #fff; font-size: .58rem; opacity: 0; transition: opacity .2s ease; backdrop-filter: blur(8px); }
+.gallery-zoom svg { width: 11px; height: 11px; }
+.project-gallery figure:hover .gallery-zoom,.project-gallery figure:focus-visible .gallery-zoom { opacity: 1; }
 .project-gallery__masonry figure { width: 100%; }
 .project-gallery__masonry figure.is-portrait { aspect-ratio: 738 / 1500; }
 .project-gallery--scream figure:nth-child(1),.project-gallery--scream figure:nth-child(2) { grid-column: span 6; }
 .project-gallery--scream figure:nth-child(3) { grid-column: 3 / span 8; }
 .project-gallery--apple-music-art-downloader figure:only-child { grid-column: 3 / span 8; }
+.image-lightbox { position: fixed; z-index: 100; inset: 0; display: flex; align-items: center; justify-content: center; padding: 42px 90px; background: rgba(5,6,6,.94); animation: lightbox-in .18s ease-out; }
+.image-lightbox__content { display: flex; width: min(1100px,88vw); max-height: 92vh; flex-direction: column; gap: 13px; }
+.image-lightbox__stage { display: grid; width: 100%; min-width: 0; min-height: 0; place-items: center; }
+.image-lightbox__stage img { display: block; max-width: 100%; max-height: 78vh; object-fit: contain; box-shadow: 0 30px 100px rgba(0,0,0,.55); }
+.image-lightbox__footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; color: #b7b8b2; font-size: .68rem; line-height: 1.4; }
+.image-lightbox__footer span { max-width: 70%; }
+.image-lightbox__footer strong { flex: 0 0 auto; color: #fff; font-size: .65rem; letter-spacing: .08em; }
+.image-lightbox__close,.image-lightbox__nav { position: absolute; z-index: 2; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; background: rgba(255,255,255,.08); color: #fff; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+.image-lightbox__close { top: 22px; right: 25px; width: 42px; height: 42px; font-size: 1.8rem; font-weight: 300; line-height: 1; }
+.image-lightbox__nav { top: 50%; width: 52px; height: 52px; transform: translateY(-50%); }
+.image-lightbox__nav:hover,.image-lightbox__close:hover { background: var(--blue); }
+.image-lightbox__nav:hover { transform: translateY(-50%) scale(1.06); }
+.image-lightbox__nav--prev { left: 28px; }.image-lightbox__nav--next { right: 28px; }.image-lightbox__nav--prev svg { transform: rotate(180deg); }
+@keyframes lightbox-in { from { opacity: 0; } to { opacity: 1; } }
 .article-layout { display: grid; width: min(1440px,calc(100% - 40px)); grid-template-columns: 180px minmax(0,760px) 180px; justify-content: center; gap: clamp(30px,5vw,80px); margin: 0 auto; padding-block: 105px 140px; }
 .case-article { min-width: 0; }
 .article-toc { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 30px; margin-bottom: 96px; padding: 24px 0; border-block: 1px solid var(--line); }
@@ -315,6 +334,13 @@ p { color: var(--muted); line-height: 1.7; }
   .article-section p { font-size: 1rem; }
   .about-grid { gap: 45px; }
   .contact-page { gap: 60px; padding-block: 85px 110px; }
+  .image-lightbox { align-items: center; padding: 54px 16px 90px; }
+  .image-lightbox__content { width: 100%; max-height: 80vh; }
+  .image-lightbox__stage img { max-width: 100%; max-height: 68vh; }
+  .image-lightbox__nav { top: auto; bottom: 25px; transform: none; width: 46px; height: 46px; }
+  .image-lightbox__nav:hover { transform: scale(1.06); }
+  .image-lightbox__nav--prev { left: calc(50% - 57px); }.image-lightbox__nav--next { right: calc(50% - 57px); }
+  .image-lightbox__footer { font-size: .62rem; }
 }
 
 @media (max-width: 520px) {
