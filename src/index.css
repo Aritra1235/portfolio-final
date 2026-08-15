@@ -224,7 +224,7 @@ p { color: var(--muted); line-height: 1.7; }
 .image-lightbox__nav:hover { transform: translateY(-50%) scale(1.06); }
 .image-lightbox__nav--prev { left: 28px; }.image-lightbox__nav--next { right: 28px; }.image-lightbox__nav--prev svg { transform: rotate(180deg); }
 @keyframes lightbox-in { from { opacity: 0; } to { opacity: 1; } }
-.article-layout { display: grid; width: min(1440px,calc(100% - 40px)); grid-template-areas: "left article right"; grid-template-columns: 180px minmax(0,760px) 180px; justify-content: center; gap: clamp(30px,5vw,80px); margin: 0 auto; padding-block: 105px 140px; }
+.article-layout { display: grid; width: min(1360px,calc(100% - 40px)); grid-template-areas: "left article right"; grid-template-columns: 160px minmax(0,760px) 160px; justify-content: center; gap: clamp(16px,3vw,60px); margin: 0 auto; padding-block: 105px 140px; }
 .case-article { grid-area: article; min-width: 0; }
 .article-toc { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 30px; margin-bottom: 96px; padding: 24px 0; border-block: 1px solid var(--line); }
 .article-toc span { grid-column: 1/-1; margin-bottom: 7px; color: var(--faint); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; }
@@ -244,10 +244,7 @@ p { color: var(--muted); line-height: 1.7; }
 .article-rail { position: relative; }
 .article-rail--left { grid-area: left; }
 .article-rail--right { grid-area: right; }
-.article-rail > div { position: sticky; top: 110px; display: flex; width: 160px; height: 600px; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #c1c1bb; color: #aaa9a3; text-align: center; }
-.article-rail span { position: absolute; top: 15px; font-size: 7px; letter-spacing: .14em; text-transform: uppercase; }
-.article-rail b { font-family: var(--display); font-size: 1.25rem; font-weight: 400; line-height: 1.05; }
-.article-rail small { position: absolute; bottom: 15px; font-size: 8px; }
+.article-rail__slot { position: sticky; top: 110px; width: 160px; min-height: 600px; }
 .next-project { padding-block: 58px 110px; border-top: 1px solid var(--line); }
 .next-project > span { color: var(--faint); font-size: .64rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .next-project a { display: flex; align-items: center; justify-content: space-between; gap: 30px; margin-top: 26px; text-decoration: none; }
@@ -282,11 +279,6 @@ p { color: var(--muted); line-height: 1.7; }
 .legal-page h2 { margin: 48px 0 15px; font-family: inherit; font-size: 1.1rem; font-weight: 700; letter-spacing: -.02em; }
 .not-found span { color: var(--blue); font-size: .75rem; font-weight: 700; }
 .not-found h1 { margin: 20px 0 25px; }.not-found p { margin-bottom: 30px; }
-
-@media (max-width: 1180px) {
-  .article-layout { grid-template-areas: "article"; grid-template-columns: minmax(0,760px); }
-  .article-rail { display: none; }
-}
 
 @media (max-width: 800px) {
   .shell { width: min(100% - 34px, 640px); }
@@ -331,7 +323,7 @@ p { color: var(--muted); line-height: 1.7; }
   .project-gallery--scream figure:nth-child(1),.project-gallery--scream figure:nth-child(2),.project-gallery--scream figure:nth-child(3),
   .project-gallery--apple-music-art-downloader figure:only-child { grid-column: span 12; margin-top: 0; }
   .project-gallery figure.is-portrait { grid-column: span 6; margin-top: 0; }
-  .article-layout { width: min(100% - 34px,680px); padding-block: 80px 100px; }
+  .article-layout { width: calc(100% - 34px); padding-block: 80px 100px; }
   .article-toc { grid-template-columns: 1fr; }
   .article-section p { font-size: 1rem; }
   .about-grid { gap: 45px; }
@@ -367,6 +359,11 @@ p { color: var(--muted); line-height: 1.7; }
   .article-section { padding-bottom: 72px; }
 }
 
+@media (max-width: 700px) {
+  .article-layout { grid-template-areas: "article"; grid-template-columns: minmax(0,680px); }
+  .article-rail { display: none; }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f0f0ec;
@@ -389,7 +386,6 @@ p { color: var(--muted); line-height: 1.7; }
   .principles-list > div { border-color: #292a27; }
   .article-section p { color: #b7b7b1; }
   .article-note { background: #1b1c19; }
-  .article-rail > div { border-color: #3e3f3b; color: #5f605b; }
   .contact-form input,.contact-form textarea { color-scheme: dark; }
 }
 

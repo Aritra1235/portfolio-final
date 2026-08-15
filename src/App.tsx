@@ -226,17 +226,7 @@ function ArticleRail({ side }: { side: 'left' | 'right' }) {
       className={`article-rail article-rail--${side}`}
       aria-hidden="true"
     >
-      <div>
-        {/*
-        <span>Space</span>
-        <b>
-          Space
-          <br />
-          ad space
-        </b>
-        <small>160 × 600</small>
-        */}
-      </div>
+      <div className="article-rail__slot" data-rail={side} />
     </aside>
   )
 }
