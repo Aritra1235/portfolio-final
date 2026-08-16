@@ -1,0 +1,2 @@
+google.com, pub-1114756443655420, DIRECT, f08c47fec0942fa0
+subdomain=applemusic.aritra.ovh
