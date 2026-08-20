@@ -64,7 +64,7 @@ function SiteNav() {
     <header className="site-header">
       <div className="shell">
         <nav className="site-nav" aria-label="Primary navigation">
-          <Link to="/" className="site-nav__brand"><Mark /><span>Aritra Bhattacharya</span></Link>
+          <Link to="/" className="site-nav__brand"><span style={{ fontSize: '1.5rem' }}>Aritra Bhattacharya</span></Link>
           <div className="site-nav__links">
             <Link to="/projects">Work</Link>
             <Link to="/about">About</Link>
