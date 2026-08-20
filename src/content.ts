@@ -158,9 +158,9 @@ export const projects: Project[] = [
     timeline: 'Iterative side project',
     stack: ['Next.js', 'Express', 'WebSockets', 'PostgreSQL', 'OpenTelemetry'],
     metrics: [
-      { value: '2.3K', label: 'active users', detail: 'dated snapshot' },
-      { value: '32K', label: 'events', detail: 'dated snapshot' },
-      { value: '2.3K', label: 'new users', detail: 'dated snapshot' },
+      { value: '654', label: 'active users', detail: 'July 2026 · up 2.7%' },
+      { value: '10K', label: 'events', detail: 'July 2026 · up 29.5%' },
+      { value: '585', label: 'new users', detail: 'July 2026 · up 6.6%' },
     ],
     gallery: [
       { src: '/images/apple-music-covers-03.webp', alt: 'Album Art Downloader resolution selection dialog', wide: true },
@@ -186,12 +186,17 @@ export const projects: Project[] = [
         ],
       },
       {
-        title: 'What usage changed',
+        title: 'From side project to public utility',
         paragraphs: [
-          'An analytics snapshot recorded 286 active users, 282 new users, and 3.3K events. The numbers are not a growth claim; they are evidence that a tiny side project becomes a reliability problem as soon as other people depend on it.',
-          'Real traffic shifted the priorities toward legible errors, input boundaries, caching, and enough operational context to reproduce failures that never happen on the developer’s machine.'
+          'In July 2026, the site served 654 active users, including 585 new users, and recorded 10K events. Compared with the previous period, active users increased 2.7%, new users increased 6.6%, and event activity increased 29.5%. The point is not growth for its own sake; it is evidence that even a deliberately small utility needs production-grade reliability once people depend on it.',
+          'Across the analytics window from July 2023 through July 2026, the service reached 5.8K active users and recorded 84K events. Traffic is international: over the latest 90-day view, the largest audiences came from the United States, Mexico, Brazil, Canada, France, India, and the United Kingdom.'
         ],
-        note: 'The metrics are a dated analytics snapshot and are intentionally labelled that way.',
+        bullets: [
+          'United States: 363 active users; Mexico: 197; Brazil: 124.',
+          'Canada and France: 78 active users each; India: 70; United Kingdom: 60.',
+          '46,561 requests handled from February through July 2026, with a peak of 17,943 in March.',
+        ],
+        note: 'Monthly metrics cover July 2026; all-time analytics cover July 1, 2023–July 31, 2026; country data covers the latest 90-day view supplied with this update.',
       },
       {
         title: 'Next improvements',
