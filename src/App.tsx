@@ -46,14 +46,7 @@ function Arrow() {
   )
 }
 
-function Mark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-    </span>
-  )
-}
+
 
 function Eyebrow({ children }: { children: ReactNode }) {
   return <p className="eyebrow">{children}</p>
