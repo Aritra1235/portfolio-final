@@ -41,7 +41,7 @@ export const projects: Project[] = [
     status: 'Active development',
     audience: 'Listeners managing a private music library',
     timeline: 'Ongoing product build',
-    stack: ['Next.js', 'Bun', 'Elysia', 'PostgreSQL', 'Redis', 'S3', 'Kotlin', 'Jetpack Compose', 'Expo'],
+    stack: ['Next.js 15', 'Bun', 'Elysia', 'SQLite', 'Drizzle', 'Redis', 'S3', 'Kotlin', 'Jetpack Compose', 'Expo'],
     metrics: [
       { value: '3', label: 'product surfaces', detail: 'web, Android, iOS' },
       { value: '20+', label: 'core screens', detail: 'web client' },
@@ -67,7 +67,7 @@ export const projects: Project[] = [
       {
         title: 'The service behind the player',
         paragraphs: [
-          'The API is organised around feature modules for albums, artists, playlists, radio, songs, uploads, analytics, and bandwidth. PostgreSQL and Drizzle hold the catalogue and application data, Redis supports fast shared state, and S3 stores media. FFmpeg and Shaka-compatible streaming paths handle the less visible part of the product: turning source files into media clients can play reliably.',
+          'The Bun/Elysia API is organised around feature modules for albums, artists, playlists, radio, songs, uploads, analytics, bandwidth, and administration. SQLite and Drizzle hold the catalogue, users, playlists, jobs, and listening data; Redis supports caching and shared auth state; S3 stores music and static assets. FFmpeg produces adaptive media while the web client uses Shaka Player for playback.',
           'Administration is part of the architecture rather than an afterthought. The web client includes upload flows, album and lyrics management, process visibility, and analytics. That makes the system operable as a real library instead of a polished player with no way to maintain what it shows.'
         ],
         bullets: [
@@ -80,7 +80,7 @@ export const projects: Project[] = [
         title: 'Native Android and iOS work',
         paragraphs: [
           'The Android branch is a native Kotlin application built with Jetpack Compose. Retrofit and OkHttp cover networking, Koin provides dependency injection, Coil handles artwork, DataStore persists settings, WorkManager flushes analytics, and Media3 powers playback and media sessions. Its structure separates remote data, domain models, use cases, view models, and Compose screens.',
-          'The iOS branch uses Expo and React Native with Expo Router, secure storage, native audio, haptics, system symbols, and glass effects. It implements authentication, collection detail, library flows, and a persistent mini-player against the same backend. The two branches make the platform trade-off explicit: share the product contract, not every line of interface code.'
+          'The iOS branch uses Expo 54 and React Native with Expo Router, SecureStore, Expo Audio, haptics, system symbols, and glass effects. It implements authentication, album, artist and playlist detail, tabbed library browsing, search, full-player and persistent mini-player experiences against the same backend. The two branches make the platform trade-off explicit: share the product contract, not every line of interface code.'
         ],
       },
       {
@@ -102,8 +102,8 @@ export const projects: Project[] = [
     description: 'Scream is a full-stack social platform with real user identity, profiles, threaded posts, likes, reposts, follows, and media uploads. It pairs a Next.js interface with a modular Bun/Elysia service.',
     status: 'Public repository',
     audience: 'People sharing short-form posts and media',
-    timeline: '67+ commits and evolving',
-    stack: ['Next.js 16', 'React 19', 'Bun', 'Elysia', 'Drizzle', 'PostgreSQL', 'Better Auth', 'AWS S3'],
+    timeline: '72 commits and evolving',
+    stack: ['Next.js 15', 'React 19', 'Bun', 'Elysia', 'Drizzle', 'PostgreSQL', 'Better Auth', 'AWS S3'],
     gallery: [
       { src: '/images/scream-02.webp', alt: 'Scream user profile and activity feed', wide: true },
       { src: '/images/scream-03.webp', alt: 'Scream profile timeline with published posts', wide: true },
@@ -121,7 +121,7 @@ export const projects: Project[] = [
         title: 'A deliberately modular backend',
         paragraphs: [
           'The API runs on Bun with Elysia and is organised into feature modules. PostgreSQL and Drizzle model users, posts, media, likes, follows, and sessions. Valibot validates incoming data, Better Auth handles identity, and OpenAPI keeps the service contract inspectable.',
-          'Media follows a separate path through AWS S3 and CDN delivery. Secure presigned uploads keep object-storage credentials out of the browser, while resize and optimisation steps keep the feed from treating every image like an unbounded file transfer.'
+          'Media follows a separate path through AWS S3 and CDN delivery. The API issues 15-minute presigned PUT URLs for avatars, banners, post images, and video objects, then records their dimensions and relationships in PostgreSQL without exposing storage credentials to the browser.'
         ],
         bullets: [
           'Use Snowflake-style identifiers so records can be created without a single database sequence bottleneck.',
@@ -150,13 +150,13 @@ export const projects: Project[] = [
     slug: 'apple-music-art-downloader',
     number: '03',
     type: 'Public utility',
-    title: 'Album Art Downloader',
-    summary: 'A focused utility for retrieving high-resolution Apple Music artwork without turning a download into a scavenger hunt.',
-    description: 'What began as a personal shortcut became a small public service. The interesting part is the clarity of the loop: paste a reference, resolve the asset, communicate progress, and deliver the right file.',
+    title: 'Apple Music Covers',
+    summary: 'A public utility for retrieving high-resolution still and animated Apple Music artwork, including complete playlist cover exports.',
+    description: 'What began as a shortcut for saving Apple Music artwork became a public service for tracks, albums, artists, and playlists. Paste a link, resolve the available artwork and video variants, then download the right asset with visible progress.',
     status: 'Live',
     audience: 'Music listeners and collectors',
     timeline: 'Iterative side project',
-    stack: ['Next.js', 'Express', 'WebSockets', 'PostgreSQL', 'OpenTelemetry'],
+    stack: ['Next.js 15', 'React 19', 'Bun.serve', 'WebSockets', 'Redis', 'Prisma', 'PostgreSQL', 'OpenTelemetry'],
     metrics: [
       { value: '654', label: 'active users', detail: 'July 2026 · up 2.7%' },
       { value: '10K', label: 'events', detail: 'July 2026 · up 29.5%' },
@@ -167,22 +167,22 @@ export const projects: Project[] = [
     ],
     sections: [
       {
-        title: 'A deliberately narrow problem',
+        title: 'One link, every useful artwork format',
         paragraphs: [
-          'Album artwork is easy to see and surprisingly awkward to save at a useful resolution. The usual path involves finding the right release, digging through page data, and hoping the image is not a thumbnail. I wanted one obvious action: provide the album and receive the artwork.',
-          'Keeping the scope narrow made room for the details users actually notice—clear input, visible progress, a predictable result, and a download that never leaves them wondering whether anything happened.'
+          'Apple Music artwork is easy to see and surprisingly awkward to save at its original quality—especially animated artwork delivered as HLS variants. The utility accepts Apple Music links, resolves still covers and animated streams, and exposes useful resolution and file-size choices instead of making the user inspect page data.',
+          'The product has grown beyond single releases. It can resolve artist media and process an entire playlist into a downloadable ZIP, with resumable job state, cancellation, server-sent progress events, and an optional email when the archive is ready.'
         ],
       },
       {
-        title: 'The request-and-result loop',
+        title: 'A Bun-native request pipeline',
         paragraphs: [
-          'Next.js provides the interface while Express handles the service layer. WebSockets carry status changes to the browser, PostgreSQL stores durable application data, and OpenTelemetry makes failures across external lookups diagnosable.',
-          'The browser never needs to understand that pipeline. It only needs honest state: the request was accepted, the artwork is being resolved, the result is ready, or something specific prevented completion.'
+          'Next.js 15 and React 19 provide the interface. The separate backend is built directly on Bun.serve—there is no Express layer—and dispatches HTTP routes and WebSocket connections itself. WebSockets report video-download progress, while playlist archive jobs use server-sent events.',
+          'Redis caches Apple Music responses, while Prisma and PostgreSQL persist response and cache records. OpenTelemetry traces inbound requests, route work, cache operations, Apple Music lookups, outbound HTTP, and WebSocket lifecycles; correlated OTLP logs make failures inspectable across the same request path.'
         ],
         bullets: [
-          'Make the first action understandable without setup instructions.',
-          'Treat progress feedback as part of the product.',
-          'Keep external lookups observable because their failures are outside the app’s control.',
+          'Parse Apple Music HLS manifests and present animated artwork variants by resolution and size.',
+          'Cache external metadata in Redis while retaining durable request records in PostgreSQL.',
+          'Expose health checks for the database, token, Apple Music, filesystem, WebSockets, video service, and Redis.',
         ],
       },
       {
@@ -215,11 +215,11 @@ export const projects: Project[] = [
     type: 'Workflow utility',
     title: 'OCR Text Extraction',
     summary: 'A screenshot-to-text workflow built to remove friction from a task that kept interrupting real work.',
-    description: 'The project turns images containing code, errors, or notes into inspectable text. Its central design problem is making a slow, imperfect operation feel transparent and safe to reuse.',
+    description: 'The project turns uploaded, dropped, or pasted images into inspectable text through two OCR modes. Its central design problem is making asynchronous extraction, usage limits, and machine-generated output understandable.',
     status: 'In active development',
     audience: 'Developers working from screenshots and references',
     timeline: 'Built around a recurring need',
-    stack: ['Next.js', 'Bun', 'WebSockets', 'PostgreSQL', 'OpenTelemetry'],
+    stack: ['Next.js 15', 'Bun', 'Elysia', 'Tesseract.js', 'SarvamAI', 'Drizzle', 'PostgreSQL', 'Better Auth'],
     sections: [
       {
         title: 'A tool born from repetition',
@@ -229,22 +229,22 @@ export const projects: Project[] = [
         ],
       },
       {
-        title: 'Designing for asynchronous work',
+        title: 'Two OCR paths, one workflow',
         paragraphs: [
-          'Image processing is not instantaneous, so the interface treats extraction as a task rather than pretending it is a synchronous form submission. A Next.js client and Bun service communicate progress over WebSockets, while PostgreSQL persists job state and OpenTelemetry traces the request path.',
-          'The user’s mental model is “read this image.” The system’s model is accepted input, processing, status changes, and a result. Product copy and reliable state transitions are what connect those models.'
+          'A Next.js 15 interface talks to a Bun/Elysia API. Standard mode performs local recognition with Tesseract.js; Pro mode sends the image to SarvamAI Vision for higher-quality extraction. The API returns a session ID immediately, and the browser polls a progress endpoint every 500 milliseconds until text or an error is available—there are no WebSockets in this project.',
+          'Users can drag, browse, or paste an image, preview it, watch processing progress, and then copy or download the extracted text. Temporary upload files are removed after processing, while PostgreSQL retains the result metadata needed for usage tracking.'
         ],
         bullets: [
-          'Show the processing stage instead of hiding all work behind a spinner.',
-          'Keep output inspectable so recognition mistakes are caught before reuse.',
-          'Trace failures across the client and service boundary.',
+          'Standard OCR uses Tesseract.js; Pro OCR uses SarvamAI Vision.',
+          'Better Auth supports accounts, sessions, email verification, and user-managed API keys.',
+          'A credit system and IP-based daily limits separate authenticated usage from the free path.',
         ],
       },
       {
         title: 'The important boundaries',
         paragraphs: [
-          'The difficult questions are about limits: upload size, retention, long-running jobs, and images that are valid but produce poor text. Each needs an explicit product response and a corresponding system state.',
-          'Instrumentation is useful here because it shortens the distance between a user saying “it failed” and a useful explanation. It also shows where time is spent without exposing the uploaded content itself.'
+          'OCR work runs in the background after upload, with progress and results held briefly in memory. Failed jobs refund the user’s credit or anonymous IP allowance, and successful jobs store the OCR mode, file metadata, credit cost, and extracted text through Drizzle.',
+          'The product also includes a usage dashboard, API-key management, credit reporting, and an OpenAPI endpoint. Scheduled jobs reset eligible user credits daily and clean expired in-memory rate-limit records.'
         ],
       },
       {
