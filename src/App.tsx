@@ -82,7 +82,6 @@ function Footer() {
     <footer className="site-footer">
       <div className="shell footer-grid">
         <div className="footer-lede">
-          <Mark />
           <p>Independent software developer building useful products from interface to infrastructure.</p>
         </div>
         <div className="footer-column">
