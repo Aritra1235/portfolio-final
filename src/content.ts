@@ -191,12 +191,6 @@ export const projects: Project[] = [
           'In July 2026, the site served 654 active users, including 585 new users, and recorded 10K events. Compared with the previous period, active users increased 2.7%, new users increased 6.6%, and event activity increased 29.5%. The point is not growth for its own sake; it is evidence that even a deliberately small utility needs production-grade reliability once people depend on it.',
           'Across the analytics window from July 2023 through July 2026, the service reached 5.8K active users and recorded 84K events. Traffic is international: over the latest 90-day view, the largest audiences came from the United States, Mexico, Brazil, Canada, France, India, and the United Kingdom.'
         ],
-        bullets: [
-          'United States: 363 active users; Mexico: 197; Brazil: 124.',
-          'Canada and France: 78 active users each; India: 70; United Kingdom: 60.',
-          '46,561 requests handled from February through July 2026, with a peak of 17,943 in March.',
-        ],
-        note: 'Monthly metrics cover July 2026; all-time analytics cover July 1, 2023–July 31, 2026; country data covers the latest 90-day view supplied with this update.',
       },
       {
         title: 'Next improvements',

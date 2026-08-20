@@ -344,6 +344,7 @@ function ProjectPage({ project }: { project: Project }) {
         <div><span>Role</span><strong>Design & full-stack development</strong></div>
       </section>
       {project.metrics && <section className="metric-row shell">{project.metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span><small>{metric.detail}</small></div>)}</section>}
+      {project.slug === 'apple-music-art-downloader' && <AppleMusicAnalytics />}
       <ProjectGallery project={project} />
       <div className="article-layout">
         <ArticleRail side="left" />
@@ -364,6 +365,80 @@ function ProjectPage({ project }: { project: Project }) {
       </div>
       <section className="next-project shell"><span>Next case study</span><Link to={`/projects/${nextProject.slug}`}><h2>{nextProject.title}</h2><i><Arrow /></i></Link></section>
     </main>
+  )
+}
+
+function AppleMusicAnalytics() {
+  const countries = [
+    { name: 'United States', value: 363 },
+    { name: 'Mexico', value: 197 },
+    { name: 'Brazil', value: 124 },
+    { name: 'Canada', value: 78 },
+    { name: 'France', value: 78 },
+    { name: 'India', value: 70 },
+    { name: 'United Kingdom', value: 60 },
+  ]
+  const requests = [
+    { month: 'Feb', value: 10762 },
+    { month: 'Mar', value: 17943 },
+    { month: 'Apr', value: 6441 },
+    { month: 'May', value: 3623 },
+    { month: 'Jun', value: 3437 },
+    { month: 'Jul', value: 4355 },
+  ]
+  const requestPeak = Math.max(...requests.map((item) => item.value))
+  const countryPeak = countries[0].value
+
+  return (
+    <section className="analytics-highlight shell" aria-labelledby="analytics-highlight-title">
+      <header className="analytics-highlight__header">
+        <div>
+          <span className="analytics-kicker">Live utility · real usage</span>
+          <h2 id="analytics-highlight-title">Used around the world.<br />Built to hold up.</h2>
+        </div>
+        <div className="analytics-total">
+          <strong>46,561</strong>
+          <span>requests handled</span>
+          <small>February–July 2026</small>
+        </div>
+      </header>
+
+      <div className="analytics-summary" aria-label="All-time analytics summary">
+        <div><strong>5.8K</strong><span>all-time active users</span></div>
+        <div><strong>84K</strong><span>all-time events</span></div>
+        <div><strong>17,943</strong><span>peak requests · March</span></div>
+      </div>
+
+      <div className="analytics-grid">
+        <section className="analytics-panel analytics-panel--requests" aria-labelledby="request-chart-title">
+          <div className="analytics-panel__heading"><div><span>Request volume</span><h3 id="request-chart-title">Six months of traffic</h3></div><small>Feb–Jul ’26</small></div>
+          <div className="request-chart" role="img" aria-label="Monthly requests: February 10,762; March 17,943; April 6,441; May 3,623; June 3,437; July 4,355">
+            {requests.map((item) => (
+              <div className={`request-bar${item.value === requestPeak ? ' request-bar--peak' : ''}`} key={item.month}>
+                <span className="request-bar__value">{item.value.toLocaleString('en-US')}</span>
+                <div className="request-bar__track"><i style={{ height: `${(item.value / requestPeak) * 100}%` }} /></div>
+                <span className="request-bar__month">{item.month}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="analytics-panel" aria-labelledby="country-chart-title">
+          <div className="analytics-panel__heading"><div><span>Global reach</span><h3 id="country-chart-title">Top countries</h3></div><small>90 days</small></div>
+          <ol className="country-chart">
+            {countries.map((country, index) => (
+              <li key={country.name}>
+                <span className="country-rank">{String(index + 1).padStart(2, '0')}</span>
+                <div><span className="country-name">{country.name}</span><i><b style={{ width: `${(country.value / countryPeak) * 100}%` }} /></i></div>
+                <strong>{country.value}</strong>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+
+      <p className="analytics-note"><span>About the data</span> Monthly metrics cover July 2026; all-time analytics cover July 1, 2023–July 31, 2026; country data covers the latest 90-day view supplied with this update.</p>
+    </section>
   )
 }
 
